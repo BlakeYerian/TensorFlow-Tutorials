@@ -1,0 +1,186 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "Untitled7.ipynb",
+      "provenance": [],
+      "authorship_tag": "ABX9TyPdFDs57kZnCOrA2oH0v+JG",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/BlakeYerian/TensorFlow-Tutorials/blob/master/caTest\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "S6gex-PK-Mzf",
+        "outputId": "332228d3-6d5c-4592-a28b-efdcaa2666c2"
+      },
+      "source": [
+        "import numpy as np\n",
+        "\n",
+        "###let's create all universes\n",
+        "\n",
+        "universewidth = 8\n",
+        "cellwindowsize = 3\n",
+        "rulesetwidth = 2*(2**cellwindowsize)\n",
+        "ruleindex = []\n",
+        "ruleset = []\n",
+        "\n",
+        "\n",
+        "\n",
+        "def rununiverse(thisuniverse,ruleset,ruleindex):\n",
+        "\n",
+        "  universewidth = len(thisuniverse)\n",
+        "  newuniverse = []\n",
+        "\n",
+        "  #this loop takes in a line of CA 0's and 1's and returns a new one\n",
+        "  for k in range(0,universewidth):\n",
+        "\n",
+        "    thiscell = thisuniverse[k]\n",
+        "\n",
+        "    #bad code that only works for a cellwindow of size 3\n",
+        "    if(k==0):\n",
+        "      cellwindow = [thisuniverse[universewidth-1],thisuniverse[0],thisuniverse[k+1]]\n",
+        "    elif(k==(universewidth-1)):\n",
+        "      cellwindow = [thisuniverse[k-1],thisuniverse[k],thisuniverse[0]]\n",
+        "    else:\n",
+        "      cellwindow = [thisuniverse[k-1],thisuniverse[k],thisuniverse[k+1]]\n",
+        "\n",
+        "\n",
+        "    cellwindow = [str(\"\".join(cellwindow))]\n",
+        "    rulenumber = ruleindex.index(cellwindow)\n",
+        "\n",
+        "    #now the cell window has a corresponding rule number. for example,\n",
+        "    # \"110\" is rule 6  #(the seventh of the 8 in the list)\n",
+        "\n",
+        "    action = []\n",
+        "    action.append(ruleset[0][2*rulenumber])\n",
+        "    action.append(ruleset[0][2*rulenumber +1])\n",
+        "    action = str(\"\".join(action))\n",
+        "\n",
+        "    if(action == '00'):\n",
+        "      newstate = '0'\n",
+        "    if(action == '01'):\n",
+        "      newstate = '1'\n",
+        "    if(action == '10'):\n",
+        "      if(thiscell == '1'):\n",
+        "        newstate = '0'\n",
+        "      if(thiscell == '0'):\n",
+        "        newstate = '1'\n",
+        "    #if(action == '11') the fourth rule is not necessary\n",
+        "    #because this action means \"stay the same\"\n",
+        "\n",
+        "    #newuniverse will hold all the new states concatenated\n",
+        "    #and replace thisuniverse\n",
+        "    newuniverse.append(newstate)\n",
+        "\n",
+        "  newuniverse = str(\"\".join(newuniverse))\n",
+        "  return(newuniverse)\n",
+        "\n",
+        "\n",
+        "\n",
+        "for l in range(0,2**cellwindowsize):\n",
+        "  ruleindex.append([str.zfill(format(l,\"b\"),cellwindowsize)])\n",
+        "print(\"ruleindex:\", ruleindex)\n",
+        "\n",
+        "\n",
+        "#generate the rules\n",
+        "for j in range(137,138): \n",
+        "  # (0,2**rulesetwidth): is for all -- using 137 as an example rule set --\n",
+        "\n",
+        "  ruleset.append(str.zfill(format(j,\"b\"),rulesetwidth))\n",
+        "\n",
+        "print(\"ruleset:\",ruleset)\n",
+        "  #ruleset is (for example) a \"000110...\" encoding for  [00][01][10]... \n",
+        "  #which encodes the rules off/on/reverse/stay\n",
+        "\n",
+        "#now we have a new line/starting state to redo everything with\n",
+        "\n",
+        "\n",
+        "#let's take a rule and try every possible starting universe against it\n",
+        "\n",
+        "for m in range(17,18): \n",
+        "  # -- range(0,2**universewidth) -- pick a starting universe!\n",
+        "\n",
+        "  thisuniverse = str.zfill(format(m,\"b\"),universewidth)\n",
+        "  history = []\n",
+        "  flagged = False\n",
+        "  print(\"thisuniverse: \",thisuniverse)\n",
+        "\n",
+        "\n",
+        "  while(flagged == False):\n",
+        "    history.append(thisuniverse)\n",
+        "    newuniverse = rununiverse(thisuniverse,ruleset,ruleindex)\n",
+        "\n",
+        "print(newuniverse)\n",
+        "\n"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "ruleindex: [['000'], ['001'], ['010'], ['011'], ['100'], ['101'], ['110'], ['111']]\n",
+            "ruleset: ['0000000010001001']\n",
+            "thisuniverse:  00010001\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "vyM_udGq-VEU"
+      },
+      "source": [
+        ""
+      ],
+      "execution_count": 20,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "ngW_C3cS-q2r"
+      },
+      "source": [
+        ""
+      ],
+      "execution_count": 2,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "SpQw4DpG-u0b"
+      },
+      "source": [
+        ""
+      ],
+      "execution_count": 2,
+      "outputs": []
+    }
+  ]
+}
